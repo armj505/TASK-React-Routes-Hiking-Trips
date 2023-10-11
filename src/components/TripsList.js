@@ -2,12 +2,33 @@ import React, { useState } from "react";
 import tripsData from "../tripsData";
 import SearchBar from "./SearchBar";
 import TripItem from "./TripItem";
+import { useSearchParams } from "react-router-dom";
 
 function TripsList() {
   const [query, setQuery] = useState("");
-  const trips = tripsData
-    .filter((trip) => trip.name.toLowerCase().includes(query.toLowerCase()))
-    .map((trip, index) => <TripItem trip={trip} key={index} />);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filter = searchParams.get(`filter`);
+  console.log(filter);
+
+  const searchedTrips =
+    query !== ""
+      ? tripsData.filter((trip) =>
+          trip.name.toLowerCase().includes(query.toLowerCase())
+        )
+      : tripsData;
+  console.log(searchedTrips);
+
+  const trips =
+    filter !== null
+      ? searchedTrips
+          .filter((trip) => trip.difficulty.includes(filter))
+          .map((trip, index) => <TripItem trip={trip} key={index} />)
+      : searchedTrips.map((trip, index) => (
+          <TripItem trip={trip} key={index} />
+        ));
+  console.log(trips);
+
   return (
     <section className="page-section portfolio" id="portfolio">
       <div className="container">
@@ -17,9 +38,30 @@ function TripsList() {
         <br />
         <SearchBar setQuery={setQuery} />
         <center>
-          <button className="btn btn-primary btn-xl">Easy</button>
-          <button className="btn btn-primary btn-xl">Moderate</button>
-          <button className="btn btn-primary btn-xl">Hard</button>
+          <button
+            onClick={() => {
+              setSearchParams({ filter: "easy" });
+            }}
+            className="btn btn-primary btn-xl"
+          >
+            Easy
+          </button>
+          <button
+            onClick={() => {
+              setSearchParams({ filter: "moderate" });
+            }}
+            className="btn btn-primary btn-xl"
+          >
+            Moderate
+          </button>
+          <button
+            onClick={() => {
+              setSearchParams({ filter: "hard" });
+            }}
+            className="btn btn-primary btn-xl"
+          >
+            Hard
+          </button>
         </center>
         <div className="divider-custom">
           <div className="divider-custom-line"></div>
@@ -28,7 +70,6 @@ function TripsList() {
           </div>
           <div className="divider-custom-line"></div>
         </div>
-
         <div className="row justify-content-center">{trips}</div>
       </div>
     </section>
